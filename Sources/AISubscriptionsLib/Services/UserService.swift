@@ -13,6 +13,7 @@ protocol UserServiceProtocol {
     func register()
     func register(user: User, confirmation: Bool, completion: SuccessResult?)
     func logout()
+    func deleteUser(confirmation: Bool, completion: SuccessResult?)
     @available(iOS 13.0, *)
     func checkCredential(by userID: String, completion: SuccessResult?)
 }
@@ -99,6 +100,28 @@ class UserService: UserServiceProtocol {
                 } else {
                     self.storage.user = user
                 }
+                completion?(.success(true))
+            }
+        }
+    }
+    
+    func deleteUser(confirmation: Bool, completion: SuccessResult?) {
+        guard let deviceID = storage.deviceID?.key else {
+            completion?(.failure(.badParameters))
+            return
+        }
+        var params: [String: Any] = [
+            "dev_id": deviceID
+        ]
+        
+        apiManager.sendSigned(api: .deleteUser, with: params)  { [weak self] (result) in
+            guard let self = self else { return }
+            switch result {
+            case .failure(let error):
+                CLog.print(.error, .user, "[\(API.deleteUser)] API ERROR :", error.localizedDescription)
+                completion?(.failure(error))
+            case .success(let jsonDictionary):
+                CLog.print(.description, .user, "[\(API.deleteUser)] RESPONSE DATA - ", jsonDictionary)
                 completion?(.success(true))
             }
         }

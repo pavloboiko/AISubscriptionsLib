@@ -22,6 +22,7 @@ enum API: String, CaseIterable {
     case signInDevice = "ios_device_signin/"
     case checkDeviceID = "ios_check_device_id_uniqueness/"
     case signInUser = "ios_user_signin/"
+    case deleteUser = "ios_delete_user/"
     case requestAttempts = "ios_request_free_attempt/"
     case consumeAttempts = "ios_consume_free_attempt/"
     case requestBonus = "ios_request_bonus_cycle/"

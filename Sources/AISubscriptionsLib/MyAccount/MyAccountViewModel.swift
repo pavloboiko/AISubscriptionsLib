@@ -13,6 +13,8 @@ public enum MyAccountAlertType {
     case failedRegistred
     case failedAppleRegistration(Error)
     case invalidEmail
+    case succesDeleted
+    case failedDeleted
 }
 
 public protocol MyAccountViewModelInput {
@@ -20,6 +22,7 @@ public protocol MyAccountViewModelInput {
     var appInfo: AppInfoProtocol { get }
     func registerWith(email: String, name: String?)
     func logout()
+    func deleteUser()
 }
 
 public protocol MyAccountViewModelOutput {
@@ -91,6 +94,22 @@ public class MyAccountViewModel: NSObject, MyAccountViewModelInput {
                 }
             }
         }
+    }
+    
+    public func deleteUser() {
+        userService.deleteUser(confirmation: true) { [weak self] result in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                if case .success(let success) = result, success {
+                    self.output?.presentAlert(by: .succesDeleted)
+                } else {
+                    self.output?.presentAlert(by: .failedDeleted)
+                }
+            }
+        }
+        
+        self.logout()
+        self.output?.updateData()
     }
     
     public func registerWith(email: String, name: String?) {
